@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Keeta Track</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+
+    :root{--pi:#6c35de;--pi-dark:#4a1fa8;--pi-light:#9b6ef3;--gold:#f5a623;--green:#27ae60;--red:#e74c3c;--bg:#0f0c1a;--card:#1a1530;--card2:#221d3a;--text:#f0eaff;--muted:#8a7faa;--border:#2e2650;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);min-height:100vh;font-family:'Inter',sans-serif;}
+    body[dir="rtl"]{font-family:'Cairo',sans-serif;}
+    nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-logo img{width:38px;height:38px;border-radius:10px;}
+    .nav-logo-text{font-size:1.1rem;font-weight:900;color:var(--pi-light);}
+    .btn-login{background:var(--pi);color:#fff;border:none;padding:7px 16px;border-radius:25px;font-weight:700;cursor:pointer;font-size:.85rem;font-family:inherit;}
+    .hero{background:linear-gradient(135deg,var(--pi-dark),var(--bg));padding:36px 16px 22px;text-align:center;}
+    .hero h1{font-size:1.8rem;font-weight:900;margin-bottom:8px;line-height:1.3;}
+    .hero h1 span{color:var(--gold);}
+    .hero p{color:var(--muted);font-size:.9rem;margin-bottom:18px;}
+    .stats-bar{display:flex;justify-content:center;gap:22px;padding:14px;flex-wrap:wrap;}
+    .stat{text-align:center;}
+    .stat-num{font-size:1.3rem;font-weight:900;color:var(--pi-light);}
+    .stat-label{font-size:.72rem;color:var(--muted);}
+    .section{padding:14px 16px;max-width:1100px;margin:0 auto;}
+    .section-title{font-size:1.05rem;font-weight:700;margin-bottom:12px;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:.2s;}
+    .card:hover{border-color:var(--pi-light);transform:translateY(-2px);}
+    .card-icon{height:110px;background:linear-gradient(135deg,var(--pi-dark),var(--card2));display:flex;align-items:center;justify-content:center;font-size:2.6rem;}
+    .card-body{padding:12px;}
+    .card-title{font-size:.9rem;font-weight:700;margin-bottom:4px;}
+    .card-sub{font-size:.78rem;color:var(--muted);margin-bottom:6px;}
+    .card-price{color:var(--gold);font-weight:900;font-size:.9rem;}
+    .badge{background:rgba(245,166,35,0.15);color:var(--gold);padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700;}
+    .action-btn{background:var(--pi);color:#fff;border:none;padding:8px 16px;border-radius:10px;font-weight:700;cursor:pointer;font-size:.82rem;font-family:inherit;width:100%;margin-top:8px;}
+    .search-bar{display:flex;gap:8px;max-width:480px;margin:0 auto;}
+    .search-bar input{flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:10px 16px;border-radius:25px;font-size:.9rem;outline:none;font-family:inherit;}
+    .search-bar button{background:var(--pi);color:#fff;border:none;padding:10px 18px;border-radius:25px;font-weight:700;cursor:pointer;font-family:inherit;}
+    .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+    .tab{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:20px;cursor:pointer;font-size:.82rem;font-family:inherit;transition:.2s;}
+    .tab.active,.tab:hover{background:var(--pi);border-color:var(--pi);}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:16px;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--card);border-radius:18px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:20px;}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .modal-title{font-size:1.1rem;font-weight:900;}
+    .close-btn{background:var(--card2);border:none;color:var(--text);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;}
+    .form-group{margin-bottom:12px;}
+    .form-label{font-size:.85rem;color:var(--muted);margin-bottom:5px;display:block;}
+    .form-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:10px;font-size:.9rem;outline:none;font-family:inherit;}
+    .submit-btn{width:100%;background:linear-gradient(135deg,var(--pi),var(--pi-dark));color:#fff;border:none;padding:12px;border-radius:12px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 22px;border-radius:28px;font-weight:700;z-index:999;display:none;}
+    @media(max-width:600px){.hero h1{font-size:1.4rem;}.grid{grid-template-columns:1fr;}}
+
+
+    .lang-bar{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px;background:rgba(108,53,222,0.12);border-bottom:1px solid var(--border);justify-content:center;}
+    .lang-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#ccc;padding:3px 9px;border-radius:20px;cursor:pointer;font-size:0.72rem;transition:.2s;font-family:inherit;}
+    .lang-btn:hover,.lang-btn.active{background:var(--pi);border-color:var(--pi);color:#fff;}
+
+    .track-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}
+    .track-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .track-id{font-weight:900;font-size:1rem;}
+    .status-badge{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:700;}
+    .status-transit{background:rgba(108,53,222,0.2);color:var(--pi-light);}
+    .status-delivered{background:rgba(39,174,96,0.2);color:var(--green);}
+    .track-steps{display:flex;justify-content:space-between;position:relative;margin:16px 0;}
+    .track-steps::before{content:'';position:absolute;top:18px;left:0;right:0;height:3px;background:var(--border);z-index:0;}
+    .track-step{display:flex;flex-direction:column;align-items:center;gap:5px;z-index:1;}
+    .step-dot{width:38px;height:38px;border-radius:50%;background:var(--card2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;}
+    .step-dot.done{background:var(--green);border-color:var(--green);}
+    .step-dot.active{background:var(--pi);border-color:var(--pi);animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(108,53,222,.4)}50%{box-shadow:0 0 0 10px rgba(108,53,222,0)}}
+    .step-lbl{font-size:.68rem;color:var(--muted);text-align:center;max-width:60px;}
+    .plan-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;transition:.2s;}
+    .plan-card:hover,.plan-card.featured{border-color:var(--pi);}
+    .plan-card.featured{background:linear-gradient(135deg,rgba(108,53,222,0.15),var(--card));}
+    .plan-name{font-size:1rem;font-weight:900;margin-bottom:6px;}
+    .plan-price{font-size:1.6rem;font-weight:900;color:var(--gold);margin-bottom:8px;}
+    .plan-features{list-style:none;font-size:.82rem;color:var(--muted);margin-bottom:12px;}
+    .plan-features li{padding:3px 0;}
+    .plan-features li::before{content:'✓ ';color:var(--green);}
+  </style>
+</head>
+<body>
+<div class="lang-bar" id="langBar"></div>
+<nav>
+  <div class="nav-logo">
+    <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663669950079/kVVYsJULtVsqaYlo.png" alt="Keeta Track"/>
+    <div class="nav-logo-text">KEETA TRACK</div>
+  </div>
+  <button class="btn-login" id="loginBtn" onclick="loginWithPi()">Login with Pi</button>
+</nav>
+<div class="hero">
+  <h1 id="heroTitle">Track Your <span>Shipments</span></h1>
+  <p id="heroSub">Real-time tracking for all your deliveries. Pay with Pi.</p>
+  <div class="search-bar">
+    <input type="text" id="trackInput" placeholder="Enter tracking number..."/>
+    <button id="trackBtn" onclick="trackOrder()">Track</button>
+  </div>
+</div>
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num">1M+</div><div class="stat-label" id="stat1">Shipments Tracked</div></div>
+  <div class="stat"><div class="stat-num">180+</div><div class="stat-label" id="stat2">Countries</div></div>
+  <div class="stat"><div class="stat-num">99.9%</div><div class="stat-label" id="stat3">Accuracy</div></div>
+  <div class="stat"><div class="stat-num">24/7</div><div class="stat-label" id="stat4">Live Updates</div></div>
+</div>
+<div class="section">
+  <div class="section-title" id="activeTitle">Active Shipments</div>
+  <div class="track-card">
+    <div class="track-header">
+      <div class="track-id">KT-2847-XQ</div>
+      <span class="status-badge status-transit" id="transitLabel">In Transit</span>
+    </div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:10px" id="fromTo">From: Dubai — To: Riyadh</div>
+    <div class="track-steps">
+      <div class="track-step"><div class="step-dot done">✓</div><div class="step-lbl" id="step1">Picked Up</div></div>
+      <div class="track-step"><div class="step-dot done">✓</div><div class="step-lbl" id="step2">Sorted</div></div>
+      <div class="track-step"><div class="step-dot active">✈</div><div class="step-lbl" id="step3">In Transit</div></div>
+      <div class="track-step"><div class="step-dot">📦</div><div class="step-lbl" id="step4">Out for Delivery</div></div>
+      <div class="track-step"><div class="step-dot">🏠</div><div class="step-lbl" id="step5">Delivered</div></div>
+    </div>
+    <div style="background:var(--card2);border-radius:10px;padding:10px;font-size:.82rem;color:var(--muted)" id="etaText">Estimated Delivery: Tomorrow, 2:00 PM</div>
+  </div>
+  <div class="section-title" id="plansTitle">Subscription Plans</div>
+  <div class="grid" id="plansGrid"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+
+var LANGS={en:{name:'English',flag:'EN',dir:'ltr'},ar:{name:'Arabic',flag:'AR',dir:'rtl'},zh:{name:'Chinese',flag:'ZH',dir:'ltr'},vi:{name:'Viet',flag:'VI',dir:'ltr'},id:{name:'Bahasa',flag:'ID',dir:'ltr'},ko:{name:'Korean',flag:'KO',dir:'ltr'},hi:{name:'Hindi',flag:'HI',dir:'ltr'},es:{name:'Espanol',flag:'ES',dir:'ltr'}};
+var currentLang=localStorage.getItem('pi_lang')||'en';
+function buildLangBar(){document.getElementById('langBar').innerHTML=Object.entries(LANGS).map(function(e){var c=e[0],l=e[1];return '<button class="lang-btn'+(c===currentLang?' active':'')+'" onclick="setLang(''+c+'')">'+l.flag+' '+l.name+'</button>';}).join('');}
+function setLang(lang){currentLang=lang;localStorage.setItem('pi_lang',lang);document.documentElement.lang=lang;document.documentElement.dir=LANGS[lang].dir;renderAll();}
+function loginWithPi(){Pi.authenticate(['username','payments'],function(){}).then(function(auth){document.getElementById('loginBtn').textContent=auth.user.username;}).catch(function(){});}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
+try{Pi.init({version:'2.0',sandbox:true});}catch(e){}
+
+var LABELS={
+  en:{hero:'Track Your <span style="color:var(--gold)">Shipments</span>',sub:'Real-time tracking for all your deliveries. Pay with Pi.',search:'Enter tracking number...',trackBtn:'Track',login:'Login with Pi',s1:'Shipments Tracked',s2:'Countries',s3:'Accuracy',s4:'Live Updates',activeTitle:'Active Shipments',transitLabel:'In Transit',fromTo:'From: Dubai — To: Riyadh',step1:'Picked Up',step2:'Sorted',step3:'In Transit',step4:'Out for Delivery',step5:'Delivered',etaText:'Estimated Delivery: Tomorrow, 2:00 PM',plansTitle:'Subscription Plans',plans:['Basic','Pro','Enterprise'],planPrices:['5','10','20'],planFeatures:[['5 shipments/mo','Email alerts','Basic reports'],['50 shipments/mo','SMS alerts','Advanced reports','API access'],['Unlimited','Priority support','Custom reports','API + Webhooks']]},
+  ar:{hero:'تتبع <span style="color:var(--gold)">شحناتك</span>',sub:'تتبع فوري لجميع شحناتك. ادفع بـ Pi.',search:'أدخل رقم التتبع...',trackBtn:'تتبع',login:'دخول بـ Pi',s1:'شحنة متتبعة',s2:'دولة',s3:'دقة',s4:'تحديثات مباشرة',activeTitle:'الشحنات النشطة',transitLabel:'في الطريق',fromTo:'من: دبي — إلى: الرياض',step1:'تم الاستلام',step2:'تم الفرز',step3:'في الطريق',step4:'خارج للتوصيل',step5:'تم التوصيل',etaText:'التسليم المتوقع: غداً، الساعة 2:00 م',plansTitle:'خطط الاشتراك',plans:['أساسي','احترافي','مؤسسي'],planPrices:['5','10','20'],planFeatures:[['5 شحنات/شهر','تنبيهات بريد','تقارير أساسية'],['50 شحنة/شهر','تنبيهات SMS','تقارير متقدمة','وصول API'],['غير محدود','دعم أولوية','تقارير مخصصة','API + Webhooks']]},
+  zh:{hero:'追踪您的<span style="color:var(--gold)">包裹</span>',sub:'实时追踪所有快递。使用Pi支付。',search:'输入追踪号...',trackBtn:'追踪',login:'使用Pi登录',s1:'已追踪包裹',s2:'国家',s3:'准确率',s4:'实时更新',activeTitle:'活跃包裹',transitLabel:'运输中',fromTo:'从：迪拜 — 到：利雅得',step1:'已取件',step2:'已分拣',step3:'运输中',step4:'派送中',step5:'已送达',etaText:'预计送达：明天下午2:00',plansTitle:'订阅计划',plans:['基础','专业','企业'],planPrices:['5','10','20'],planFeatures:[['5件/月','邮件提醒','基础报告'],['50件/月','短信提醒','高级报告','API访问'],['无限制','优先支持','自定义报告','API+Webhooks']]},
+  vi:{hero:'Theo doi <span style="color:var(--gold)">Hang hoa</span>',sub:'Theo doi thoi gian thuc. Thanh toan bang Pi.',search:'Nhap ma theo doi...',trackBtn:'Theo doi',login:'Dang nhap Pi',s1:'Kien hang',s2:'Quoc gia',s3:'Do chinh xac',s4:'Cap nhat TT',activeTitle:'Kien hang dang van chuyen',transitLabel:'Dang van chuyen',fromTo:'Tu: Dubai - Den: Riyadh',step1:'Da lay hang',step2:'Da phan loai',step3:'Dang van chuyen',step4:'Dang giao',step5:'Da giao',etaText:'Du kien giao: Ngay mai 2:00 CH',plansTitle:'Goi dang ky',plans:['Co ban','Pro','Doanh nghiep'],planPrices:['5','10','20'],planFeatures:[['5 kien/thang','Canh bao email','Bao cao co ban'],['50 kien/thang','Canh bao SMS','Bao cao nang cao','API'],['Khong gioi han','Ho tro uu tien','Bao cao tuy chinh','API+Webhooks']]},
+  id:{hero:'Lacak <span style="color:var(--gold)">Kiriman</span> Anda',sub:'Pelacakan real-time untuk semua kiriman. Bayar Pi.',search:'Masukkan nomor resi...',trackBtn:'Lacak',login:'Masuk Pi',s1:'Kiriman Dilacak',s2:'Negara',s3:'Akurasi',s4:'Update Langsung',activeTitle:'Kiriman Aktif',transitLabel:'Dalam Perjalanan',fromTo:'Dari: Dubai — Ke: Riyadh',step1:'Diambil',step2:'Disortir',step3:'Dalam Perjalanan',step4:'Keluar Antar',step5:'Terkirim',etaText:'Perkiraan: Besok, 14:00',plansTitle:'Paket Langganan',plans:['Basic','Pro','Enterprise'],planPrices:['5','10','20'],planFeatures:[['5 kiriman/bln','Alert email','Laporan dasar'],['50 kiriman/bln','Alert SMS','Laporan lanjutan','Akses API'],['Tak terbatas','Dukungan prioritas','Laporan kustom','API+Webhooks']]},
+  ko:{hero:'<span style="color:var(--gold)">배송</span> 추적',sub:'모든 배송을 실시간으로 추적하세요. Pi로 결제.',search:'운송장 번호 입력...',trackBtn:'추적',login:'Pi로 로그인',s1:'추적된 배송',s2:'국가',s3:'정확도',s4:'실시간 업데이트',activeTitle:'진행 중인 배송',transitLabel:'운송 중',fromTo:'출발: 두바이 — 도착: 리야드',step1:'수거됨',step2:'분류됨',step3:'운송 중',step4:'배달 중',step5:'배달 완료',etaText:'예상 배달: 내일 오후 2:00',plansTitle:'구독 플랜',plans:['기본','프로','기업'],planPrices:['5','10','20'],planFeatures:[['월 5건','이메일 알림','기본 보고서'],['월 50건','SMS 알림','고급 보고서','API 접근'],['무제한','우선 지원','맞춤 보고서','API+Webhooks']]},
+  hi:{hero:'Apni <span style="color:var(--gold)">Delivery</span> Track Karen',sub:'Sabhi deliveries ki real-time tracking. Pi se bhugtaan.',search:'Tracking number daalen...',trackBtn:'Track Karen',login:'Pi se Login',s1:'Tracked Shipments',s2:'Desh',s3:'Shuddhataa',s4:'Live Updates',activeTitle:'Active Shipments',transitLabel:'Raaste Mein',fromTo:'Se: Dubai — Ko: Riyadh',step1:'Utha Liya',step2:'Sort Kiya',step3:'Raaste Mein',step4:'Delivery Par',step5:'Deliver Ho Gaya',etaText:'Anumaan: Kal, 2:00 PM',plansTitle:'Subscription Plans',plans:['Basic','Pro','Enterprise'],planPrices:['5','10','20'],planFeatures:[['5 shipment/maah','Email alert','Basic report'],['50 shipment/maah','SMS alert','Advanced report','API access'],['Unlimited','Priority support','Custom report','API+Webhooks']]},
+  es:{hero:'Rastrea tus <span style="color:var(--gold)">Envios</span>',sub:'Seguimiento en tiempo real. Paga con Pi.',search:'Ingresa numero de rastreo...',trackBtn:'Rastrear',login:'Iniciar sesion Pi',s1:'Envios Rastreados',s2:'Paises',s3:'Precision',s4:'Actualizaciones',activeTitle:'Envios Activos',transitLabel:'En Transito',fromTo:'De: Dubai — A: Riad',step1:'Recogido',step2:'Clasificado',step3:'En Transito',step4:'En Reparto',step5:'Entregado',etaText:'Entrega estimada: Manana 2:00 PM',plansTitle:'Planes de Suscripcion',plans:['Basico','Pro','Empresa'],planPrices:['5','10','20'],planFeatures:[['5 envios/mes','Alertas email','Informes basicos'],['50 envios/mes','Alertas SMS','Informes avanzados','Acceso API'],['Ilimitado','Soporte prioritario','Informes personalizados','API+Webhooks']]}
+};
+function renderAll(){
+  var lb=LABELS[currentLang]||LABELS.en;
+  buildLangBar();
+  document.getElementById('heroTitle').innerHTML=lb.hero;
+  document.getElementById('heroSub').textContent=lb.sub;
+  document.getElementById('trackInput').placeholder=lb.search;
+  document.getElementById('trackBtn').textContent=lb.trackBtn;
+  document.getElementById('loginBtn').textContent=lb.login;
+  document.getElementById('stat1').textContent=lb.s1;document.getElementById('stat2').textContent=lb.s2;document.getElementById('stat3').textContent=lb.s3;document.getElementById('stat4').textContent=lb.s4;
+  document.getElementById('activeTitle').textContent=lb.activeTitle;
+  document.getElementById('transitLabel').textContent=lb.transitLabel;
+  document.getElementById('fromTo').textContent=lb.fromTo;
+  document.getElementById('step1').textContent=lb.step1;document.getElementById('step2').textContent=lb.step2;document.getElementById('step3').textContent=lb.step3;document.getElementById('step4').textContent=lb.step4;document.getElementById('step5').textContent=lb.step5;
+  document.getElementById('etaText').textContent=lb.etaText;
+  document.getElementById('plansTitle').textContent=lb.plansTitle;
+  document.getElementById('plansGrid').innerHTML=lb.plans.map(function(p,i){
+    var featured=i===1;
+    return '<div class="plan-card'+(featured?' featured':'')+'"><div class="plan-name">'+p+'</div><div class="plan-price">'+lb.planPrices[i]+' pi/mo</div><ul class="plan-features">'+lb.planFeatures[i].map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul><button class="action-btn" onclick="subscribe(''+p+'','+lb.planPrices[i]+')">Subscribe</button></div>';
+  }).join('');
+}
+function trackOrder(){var n=document.getElementById('trackInput').value;if(!n){showToast('Enter tracking number');return;}showToast('Tracking: '+n);}
+function subscribe(plan,price){Pi.createPayment({amount:price,memo:'Keeta Track - '+plan,metadata:{app:'keeta-track'}},{onReadyForServerApproval:function(){},onReadyForServerCompletion:function(id,txid){showToast('Subscribed to '+plan+'!');},onCancel:function(){},onError:function(e){}});}
+renderAll();
+</script>
+</body>
+</html>
