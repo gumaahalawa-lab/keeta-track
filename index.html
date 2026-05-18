@@ -137,7 +137,7 @@ function buildLangBar(){document.getElementById('langBar').innerHTML=Object.entr
 function setLang(lang){currentLang=lang;localStorage.setItem('pi_lang',lang);document.documentElement.lang=lang;document.documentElement.dir=LANGS[lang].dir;renderAll();}
 function loginWithPi(){Pi.authenticate(['username','payments'],function(){}).then(function(auth){document.getElementById('loginBtn').textContent=auth.user.username;}).catch(function(){});}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
-try{Pi.init({version:'2.0',sandbox:true});}catch(e){}
+
 
 var LABELS={
   en:{hero:'Track Your <span style="color:var(--gold)">Shipments</span>',sub:'Real-time tracking for all your deliveries. Pay with Pi.',search:'Enter tracking number...',trackBtn:'Track',login:'Login with Pi',s1:'Shipments Tracked',s2:'Countries',s3:'Accuracy',s4:'Live Updates',activeTitle:'Active Shipments',transitLabel:'In Transit',fromTo:'From: Dubai — To: Riyadh',step1:'Picked Up',step2:'Sorted',step3:'In Transit',step4:'Out for Delivery',step5:'Delivered',etaText:'Estimated Delivery: Tomorrow, 2:00 PM',plansTitle:'Subscription Plans',plans:['Basic','Pro','Enterprise'],planPrices:['5','10','20'],planFeatures:[['5 shipments/mo','Email alerts','Basic reports'],['50 shipments/mo','SMS alerts','Advanced reports','API access'],['Unlimited','Priority support','Custom reports','API + Webhooks']]},
@@ -173,19 +173,24 @@ function trackOrder(){var n=document.getElementById('trackInput').value;if(!n){s
 function subscribe(plan,price){Pi.createPayment({amount:price,memo:'Keeta Track - '+plan,metadata:{app:'keeta-track'}},{onReadyForServerApproval:function(){},onReadyForServerCompletion:function(id,txid){showToast('Subscribed to '+plan+'!');},onCancel:function(){},onError:function(e){}});}
 renderAll();
 
+}catch(e){ console.log('Pi SDK error:',e); }
+  }, 500);
+});
+
 // Auto-authenticate on load as required by Pi App Studio
 window.addEventListener('load', function(){
-  setTimeout(function(){
-    try{
-      Pi.authenticate(['username','payments'], function(p){ console.log('Incomplete:',p); }).then(function(auth){
-        if(auth && auth.user){
-          try{ var btn=document.getElementById('loginBtn'); if(btn) btn.textContent=auth.user.username; }catch(e){}
-          try{ var un=document.getElementById('userName'); if(un) un.textContent=auth.user.username; }catch(e){}
-          try{ var ub=document.getElementById('userBar'); if(ub) ub.classList.add('visible'); }catch(e){}
-        }
-      }).catch(function(e){ console.log('Auth error:',e); });
-    }catch(e){ console.log('Pi SDK error:',e); }
-  }, 500);
+  try{
+    Pi.init({version:'2.0'});
+  }catch(e){}
+  try{
+    Pi.authenticate(['username','payments'], function(p){ console.log('Incomplete:',p); }).then(function(auth){
+      if(auth && auth.user){
+        try{ var btn=document.getElementById('loginBtn'); if(btn) btn.textContent=auth.user.username; }catch(e){}
+        try{ var un=document.getElementById('userName'); if(un) un.textContent=auth.user.username; }catch(e){}
+        try{ var ub=document.getElementById('userBar'); if(ub) ub.classList.add('visible'); }catch(e){}
+      }
+    }).catch(function(e){ console.log('Auth error:',e); });
+  }catch(e){ console.log('Pi SDK error:',e); }
 });
 
 </script>
