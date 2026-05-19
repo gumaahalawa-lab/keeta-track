@@ -144,9 +144,6 @@ function subscribePlan(name,price){
 function loginWithPi(){Pi.authenticate(['username','payments'],function(){}).then(function(auth){document.getElementById('loginBtn').textContent=auth.user.username;}).catch(function(){});}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
 renderAll();
-}catch(e){ console.log('Pi SDK error:',e); }
-  }, 500);
-});
 // Auto-authenticate on load as required by Pi App Studio
 window.addEventListener('load', function(){
   try{
