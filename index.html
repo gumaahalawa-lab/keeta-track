@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Keeta Track</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script>Pi.init({ version: "2.0" });</script>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet"/>
   <style>
     :root{--pi:#6c35de;--pi-dark:#4a1fa8;--pi-light:#9b6ef3;--gold:#f5a623;--green:#27ae60;--red:#e74c3c;--bg:#0f0c1a;--card:#1a1530;--card2:#221d3a;--text:#f0eaff;--muted:#8a7faa;--border:#2e2650;}
@@ -349,18 +348,17 @@ function renderAll() {
 
 renderAll();
 
-// Auto-authenticate on page load as required by Pi App Studio
-window.addEventListener("load", function() {
-  Pi.authenticate(["username", "payments"], function(p) {
-    console.log("Incomplete payment:", p);
-  }).then(function(auth) {
-    if (auth && auth.user) {
-      var btn = document.getElementById("loginBtn");
-      if (btn) btn.textContent = auth.user.username;
-    }
-  }).catch(function(e) {
-    console.log("Auth error:", e);
-  });
+window.addEventListener('load', function(){
+  try{
+    Pi.init({version:'2.0'});
+  }catch(e){}
+  try{
+    Pi.authenticate(['username','payments'], function(p){ console.log('Incomplete:',p); }).then(function(auth){
+      if(auth && auth.user){
+        try{ var btn=document.getElementById('loginBtn'); if(btn) btn.textContent=auth.user.username; }catch(e){}
+      }
+    }).catch(function(e){ console.log('Auth error:',e); });
+  }catch(e){ console.log('Pi SDK error:',e); }
 });
 </script>
 </body>
